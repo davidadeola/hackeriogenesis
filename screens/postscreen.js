@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 
 // React Native Functions
 import { StyleSheet, View, ScrollView } from "react-native";
+import { StatusBar } from "expo-status-bar";
 
 // Components
 import Nav from "../components/nav";
@@ -16,18 +17,23 @@ import RightArrow from "../assets/right-arrow.png";
 
 const PostScreen = () => {
   const [data, setData] = useState([]);
-
-  const handleData = useCallback(async () => {
-    const dataArray = await getData(20);
-    setData(dataArray);
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
+    const handleData = async () => {
+      setIsLoading(true);
+      const dataArray = await getData(20);
+      setData(dataArray);
+      setIsLoading(false);
+    };
+
     handleData();
-  }, [handleData]);
+  }, []);
 
   return (
     <ScrollView>
+      <StatusBar style="dark" />
       <View
         style={{
           display: "flex",
@@ -35,12 +41,18 @@ const PostScreen = () => {
           alignItems: "center",
         }}
       >
-        <Nav />
+        <Nav
+          data={data}
+          setData={setData}
+          {...{ hasSearched, setHasSearched }}
+        />
 
-        {!data.length ? (
-          <Lottie source={require("../assets/loader.json")} autoPlay loop />
+        {isLoading ? (
+          <View style={{ width: 500, height: 500 }}>
+            <Lottie source={require("../assets/loader.json")} autoPlay loop />
+          </View>
         ) : (
-          <Posts results={data} />
+          <Posts results={data} setData={setData} hasSearched={hasSearched} />
         )}
       </View>
     </ScrollView>

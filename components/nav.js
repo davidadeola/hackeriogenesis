@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -10,9 +10,36 @@ import {
 import Button from "./button";
 
 import SearchIcon from "../assets/search.png";
+import XMarkIcon from "../assets/xmark.png";
 
-const Nav = () => {
+const Nav = ({ data, setData, hasSearched, setHasSearched }) => {
+  const [isEditable, setIsEditable] = useState(true);
+  const [initialData, setIntialData] = useState([]);
   const [inputValue, setInputValue] = useState("");
+
+  const search = () => {
+    if (!inputValue) return;
+    setIsEditable(false);
+    setIntialData(() => data);
+
+    const regex = new RegExp(`${inputValue}`, "gi");
+
+    const newData = data.filter((story) => regex.test(story.title));
+    setData(newData);
+    setHasSearched(true);
+  };
+
+  const cancelSearch = () => {
+    setData(initialData);
+    setHasSearched(false);
+    setInputValue("");
+    setIsEditable(true);
+  };
+
+  const handleInputChanges = (text) => {
+    setHasSearched(false);
+    setInputValue(text);
+  };
 
   return (
     <View style={styles.nav}>
@@ -20,15 +47,19 @@ const Nav = () => {
       <TextInput
         style={styles.input}
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChangeText={handleInputChanges}
         placeholder="Search Post"
+        editable={isEditable}
       />
-      <Button
-        onPress={() => navigation.navigate("Posts")}
-        style={styles.button}
-      >
-        <ImageBackground style={styles.icon} source={SearchIcon} />
-      </Button>
+      {hasSearched ? (
+        <Button onPress={cancelSearch} style={styles.button}>
+          <ImageBackground style={styles.icon} source={XMarkIcon} />
+        </Button>
+      ) : (
+        <Button onPress={search} style={styles.button}>
+          <ImageBackground style={styles.icon} source={SearchIcon} />
+        </Button>
+      )}
     </View>
   );
 };
@@ -72,6 +103,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#ff6600",
     borderRadius: 8,
+    paddingTop: Platform.OS === "ios" ? 5 : 0,
+    paddingLeft: Platform.OS === "ios" ? 2 : 0,
   },
   icon: {
     width: 30,

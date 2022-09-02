@@ -1,4 +1,11 @@
-import { StyleSheet, View, Linking, ImageBackground } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Linking,
+  ImageBackground,
+  Platform,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
 
 import Button from "../components/button";
 
@@ -8,6 +15,7 @@ import CustomText from "../components/customText";
 const WelcomeScreen = ({ navigation }) => {
   return (
     <View style={styles.header}>
+      <StatusBar style="light" />
       <CustomText style={styles.headingStyle}>
         Get the latest posts in Tech
       </CustomText>
@@ -67,6 +75,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 80,
     marginTop: 100,
+    paddingTop: Platform.OS === "ios" ? 5 : 0,
+    paddingLeft: Platform.OS === "ios" ? 5 : 0,
   },
   icon: {
     width: 30,
